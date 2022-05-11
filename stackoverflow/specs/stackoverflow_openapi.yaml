@@ -1,0 +1,504 @@
+openapi: 3.0.1
+info:
+  title: Stackoverflow
+  description: 'Stackoverflow - учебный проект курса "Backend разработка на Kotlin"'
+  version: 0.0.1
+servers:
+  - url: https://localhost/
+tags:
+  - name: user
+    description: Access to users
+  - name: question
+    description: Access to questions
+  - name: answer
+    description: Access to answers
+paths:
+  /user/create:
+    post:
+      tags:
+        - user
+      summary: Create new user
+      operationId: createUser
+      requestBody:
+        description: Create user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+  /question/create:
+    post:
+      tags:
+        - question
+      summary: Create new question
+      operationId: createQuestion
+      requestBody:
+        description: Create question object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateQuestionRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateQuestionResponse'
+  /answer/create:
+    post:
+      tags:
+        - answer
+      summary: Create new answer
+      operationId: createAnswer
+      requestBody:
+        description: Create answer object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnswerRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAnswerResponse'
+  /user/get:
+    post:
+      tags:
+        - user
+      summary: Get user info
+      operationId: getUser
+      requestBody:
+        description: User info object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetUserRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserResponse'
+  /question/get:
+    post:
+      tags:
+        - question
+      summary: Get question info
+      operationId: getQuestion
+      requestBody:
+        description: Question info object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetQuestionRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetQuestionResponse'
+  /answers/get:
+    post:
+      tags:
+        - answer
+      summary: Get answers info
+      operationId: getAnswers
+      requestBody:
+        description: Answers info object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetAnswersRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAnswersResponse'
+  /question/search:
+    post:
+      tags:
+        - question
+      summary: Question search
+      operationId: searchQuestion
+      requestBody:
+        description: Question search object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchQuestionRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchQuestionResponse'
+components:
+  schemas:
+
+    BaseMessage:
+      type: object
+      description: Base class for requests and responses
+      properties:
+        messageType:
+          type: string
+          title: discriminator
+          description: Discriminator contains generic class
+      discriminator:
+        propertyName: messageType
+
+    BaseRequest:
+      description: Base class for requests
+      allOf:
+        # - $ref: '#/components/schemas/BaseMessage'
+        - type: object
+          properties:
+            requestId:
+              type: string
+
+    BaseResponse:
+      description: Base class for responses
+      allOf:
+        # - $ref: '#/components/schemas/BaseMessage'
+        - type: object
+          properties:
+            requestId:
+              type: string
+            result:
+              type: string
+              enum:
+                - success
+                - error
+            errors:
+              type: array
+              items:
+                $ref: '#/components/schemas/RequestError'
+
+    RequestError:
+      type: object
+      description: Request error description
+      properties:
+        message:
+          type: string
+        field:
+          type: string
+
+    QuestionStatus:
+      type: string
+      description: Question status
+      enum:
+        - solve
+        - close
+        - open
+
+    Question:
+      type: object
+      description: question object
+      properties:
+        id:
+          type: string
+          title: question id
+        text:
+          type: string
+          title: question text
+        rating:
+          type: string
+          title: question rating
+        creationDate:
+          type: string
+          title: question creation date
+        status:
+          $ref: '#/components/schemas/QuestionStatus'
+          
+    Answer:
+      type: object
+      description: answer object
+      properties:
+        id:
+          type: string
+          title: answer id
+        text:
+          type: string
+          title: answer text
+        rating:
+          type: string
+          title: answer rating
+        creationDate:
+          type: string
+          title: answer creation date
+          
+    User:
+      type: object
+      description: user object
+      properties:
+        id:
+          type: string
+          title: user id
+        name:
+          type: string
+          title: user name
+        email:
+          type: string
+          title: user email
+        rating:
+          type: string
+          title: user rating
+
+    BaseDebugRequest:
+      type: object
+      description: Структура с описанием отладочных параметров запроса
+      properties:
+        mode:
+          type: string
+          default: prod
+          enum:
+            - prod
+            - test
+            - stub
+        stubCase:
+          type: string
+          enum:
+            - success
+            - database_error
+
+    CreateQuestionRequest:
+      description: new question
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseRequest'
+        - type: object
+          properties:
+            createQuestion:
+              $ref: '#/components/schemas/Question'
+            debug:
+              allOf:
+                - $ref: '#/components/schemas/BaseDebugRequest'
+                - type: object
+                  properties:
+                    stub:
+                      type: string
+                      enum:
+                        - success
+                        - emptyTitle
+                        - databaseError
+                        
+    CreateUserRequest:
+      description: new user
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseRequest'
+        - type: object
+          properties:
+            createUser:
+              $ref: '#/components/schemas/User'
+            debug:
+              allOf:
+                - $ref: '#/components/schemas/BaseDebugRequest'
+                - type: object
+                  properties:
+                    stub:
+                      type: string
+                      enum:
+                        - success
+                        - emptyTitle
+                        - databaseError
+
+    CreateQuestionResponse:
+      description: new question response
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            createdQuestion:
+              $ref: '#/components/schemas/Question'
+              
+    CreateUserResponse:
+      description: new user response
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            createdUser:
+              $ref: '#/components/schemas/User'
+              
+    CreateAnswerRequest:
+      description: new answer
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseRequest'
+        - type: object
+          properties:
+            createAnswer:
+              $ref: '#/components/schemas/Answer'
+            debug:
+              allOf:
+                - $ref: '#/components/schemas/BaseDebugRequest'
+                - type: object
+                  properties:
+                    stub:
+                      type: string
+                      enum:
+                        - success
+                        - emptyTitle
+                        - databaseError
+                        
+    CreateAnswerResponse:
+      description: new user response
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            createdAnswer:
+              $ref: '#/components/schemas/Answer'
+              
+    GetAnswersRequest:
+      description: get answers request
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseRequest'
+        - type: object
+          properties:
+            questionId:
+              type: string
+            debug:
+              allOf:
+                - $ref: '#/components/schemas/BaseDebugRequest'
+                - type: object
+                  properties:
+                    stub:
+                      type: string
+                      enum:
+                        - success
+                        - emptyTitle
+                        - databaseError
+                        
+    GetAnswersResponse:
+      description: get answers response
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            answers:
+              type: array
+              items: 
+                $ref: '#/components/schemas/Answer'
+              
+    GetUserRequest:
+      description: get user
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseRequest'
+        - type: object
+          properties:
+            userId:
+              type: string
+            debug:
+              allOf:
+                - $ref: '#/components/schemas/BaseDebugRequest'
+                - type: object
+                  properties:
+                    stub:
+                      type: string
+                      enum:
+                        - success
+                        - emptyTitle
+                        - databaseError
+
+    GetUserResponse:
+      description: get user response
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+              
+              
+    GetQuestionRequest:
+      description: get question
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseRequest'
+        - type: object
+          properties:
+            questionId:
+              type: string
+            debug:
+              allOf:
+                - $ref: '#/components/schemas/BaseDebugRequest'
+                - type: object
+                  properties:
+                    stub:
+                      type: string
+                      enum:
+                        - success
+                        - emptyTitle
+                        - databaseError
+                        
+    GetQuestionResponse:
+      description: get question response
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            question:
+              $ref: '#/components/schemas/Question'
+              
+    SearchQuestionRequest:
+      description: search question request
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseRequest'
+        - type: object
+          properties:
+            inputText:
+              type: string
+            debug:
+              allOf:
+                - $ref: '#/components/schemas/BaseDebugRequest'
+                - type: object
+                  properties:
+                    stub:
+                      type: string
+                      enum:
+                        - success
+                        - emptyTitle
+                        - databaseError
+                        
+    SearchQuestionResponse:
+      description: search question response
+      allOf:
+        - $ref: '#/components/schemas/BaseMessage'
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            questions:
+              type: array
+              items: 
+                $ref: '#/components/schemas/Question'
