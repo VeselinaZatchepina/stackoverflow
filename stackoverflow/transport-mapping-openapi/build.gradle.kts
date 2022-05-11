@@ -14,4 +14,6 @@ dependencies {
 
     implementation(project(":common"))
     implementation(project(":transport-main-openapi"))
+
+    testImplementation(kotlin("test"))
 }
