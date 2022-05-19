@@ -1,0 +1,369 @@
+openapi: 3.0.1
+info:
+  title: Stackoverflow
+  description: 'Stackoverflow - учебный проект курса "Backend разработка на Kotlin"'
+  version: 0.0.1
+servers:
+  - url: https://localhost/
+tags:
+  - name: question
+    description: Access to questions
+paths:
+  /question/create:
+    post:
+      tags:
+        - question
+      summary: Create new question
+      operationId: createQuestion
+      requestBody:
+        description: Create question object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateQuestionRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateQuestionResponse'
+  /question/update:
+    post:
+      tags:
+        - question
+      summary: Update question
+      operationId: updateQuestion
+      requestBody:
+        description: Update question object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateQuestionRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateQuestionResponse'
+  /question/delete:
+    post:
+      tags:
+        - question
+      summary: Delete question
+      operationId: deleteQuestion
+      requestBody:
+        description: Delete question object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteQuestionRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteQuestionResponse'
+  /question/read:
+    post:
+      tags:
+        - question
+      summary: Get question info
+      operationId: getQuestion
+      requestBody:
+        description: Question info object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetQuestionRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetQuestionResponse'
+  /question/search:
+    post:
+      tags:
+        - question
+      summary: Question search
+      operationId: searchQuestion
+      requestBody:
+        description: Question search object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchQuestionRequest'
+        required: true
+      responses:
+        200:
+          description: all responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchQuestionResponse'
+components:
+  schemas:
+
+    IRequest:
+      type: object
+      description: Base interface
+      properties:
+        requestType:
+          type: string
+          description: Discriminator
+          example: create
+        requestId:
+          type: string
+          description: Request id
+      discriminator:
+        propertyName: requestType
+        mapping:
+          create: '#/components/schemas/CreateQuestionRequest'
+          read: '#/components/schemas/GetQuestionRequest'
+          update: '#/components/schemas/UpdateQuestionRequest'
+          delete: '#/components/schemas/DeleteQuestionRequest'
+          search: '#/components/schemas/SearchQuestionRequest'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        group:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
+
+    ResponseResult:
+      type: string
+      enum:
+        - success
+        - error
+
+    IResponse:
+      type: object
+      description: Базовый интерфейс для всех ответов
+      properties:
+        responseType:
+          type: string
+          description: Поле-дескриминатор для вычисления типа запроса
+          example: create
+        requestId:
+          type: string
+          description: Идентификатор запроса для отладки
+        result:
+          $ref: '#/components/schemas/ResponseResult'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+      discriminator:
+        propertyName: responseType
+        mapping:
+          create: '#/components/schemas/CreateQuestionResponse'
+          read: '#/components/schemas/GetQuestionResponse'
+          update: '#/components/schemas/UpdateQuestionResponse'
+          delete: '#/components/schemas/DeleteQuestionResponse'
+          search: '#/components/schemas/SearchQuestionResponse'
+
+    QuestionStatus:
+      type: string
+      description: Question status
+      enum:
+        - solved
+        - closed
+        - opened
+
+    CreatableQuestion:
+      type: object
+      description: createable question object
+      properties:
+        title:
+          type: string
+          description: question title
+        text:
+          type: string
+          description: question text
+        ownerId:
+          type: string
+          description: question owner id
+
+    UpdatableQuestion:
+      type: object
+      description: updateable question object
+      allOf:
+        - $ref: '#/components/schemas/CreatableQuestion'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: question id
+            rating:
+              type: string
+              description: question rating
+            status:
+              $ref: '#/components/schemas/QuestionStatus'
+
+    ResponseQuestion:
+      description: question response
+      allOf:
+        - $ref: '#/components/schemas/UpdatableQuestion'
+        - type: object
+          properties:
+            text:
+              type: string
+              description: question text
+            ownerId:
+              type: string
+              description: question rating
+            creationDate:
+              type: string
+              description: question creation date
+
+    BaseDebugRequest:
+      type: string
+      enum:
+        - prod
+        - test
+        - stub
+
+    CreateQuestionRequest:
+      description: new question
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/QuestionRequestDebug'
+        - type: object
+          properties:
+            createQuestion:
+              $ref: '#/components/schemas/CreatableQuestion'
+
+    CreateQuestionResponse:
+      description: new question response
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - type: object
+          properties:
+            createdQuestion:
+              $ref: '#/components/schemas/ResponseQuestion'
+
+    GetQuestionRequest:
+      description: get question
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/QuestionRequestDebug'
+        - type: object
+          properties:
+            questionId:
+              type: string
+                        
+    GetQuestionResponse:
+      description: get question response
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - type: object
+          properties:
+            question:
+              $ref: '#/components/schemas/ResponseQuestion'
+              
+    SearchQuestionRequest:
+      description: search question request
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/QuestionRequestDebug'
+        - type: object
+          properties:
+            inputText:
+              type: string
+                        
+    SearchQuestionResponse:
+      description: search question response
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - type: object
+          properties:
+            questions:
+              type: array
+              items: 
+                $ref: '#/components/schemas/ResponseQuestion'
+
+    UpdateQuestionRequest:
+      description: get question
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/QuestionRequestDebug'
+        - type: object
+          properties:
+            updateQuestion:
+              $ref: '#/components/schemas/UpdatableQuestion'
+
+    UpdateQuestionResponse:
+      description: update question response
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - type: object
+          properties:
+            question:
+              $ref: '#/components/schemas/ResponseQuestion'
+
+    DeleteQuestionRequest:
+      description: delete question
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/QuestionRequestDebug'
+        - type: object
+          properties:
+            questionId:
+              type: string
+
+    DeleteQuestionResponse:
+      description: get question response
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - type: object
+          properties:
+            question:
+              $ref: '#/components/schemas/ResponseQuestion'
+
+    # STUBS ======================
+    QuestionRequestDebug:
+      type: object
+      properties:
+        debug:
+          $ref: '#/components/schemas/QuestionDebug'
+
+    QuestionDebug:
+      type: object
+      properties:
+        mode:
+          $ref: '#/components/schemas/QuestionRequestDebugMode'
+        stub:
+          $ref: '#/components/schemas/QuestionRequestDebugStubs'
+
+    QuestionRequestDebugStubs:
+      type: string
+      description: Перечисления всех стабов
+      enum:
+        - success
+        - notFound
+        - badId
+        - badTitle
+        - badDescription
+        - cannotDelete
+        - badSearchString
+
+    QuestionRequestDebugMode:
+      type: string
+      enum:
+        - prod
+        - test
+        - stub

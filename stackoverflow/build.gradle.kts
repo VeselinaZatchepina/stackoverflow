@@ -1,14 +1,15 @@
 plugins {
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") apply false
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+group = "org.stackoverflow"
+version = "0.0.1"
 
-repositories {
-    mavenCentral()
-}
+subprojects {
+    group = rootProject.group
+    version = rootProject.version
 
-dependencies {
-    implementation(kotlin("stdlib"))
+    repositories {
+        mavenCentral()
+    }
 }
