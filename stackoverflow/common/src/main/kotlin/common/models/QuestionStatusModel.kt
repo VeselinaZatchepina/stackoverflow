@@ -1,8 +1,8 @@
 package common.models
 
 enum class QuestionStatusModel {
-    SOLVE,
-    CLOSE,
-    OPEN,
+    SOLVED,
+    CLOSED,
+    OPENED,
     NONE
 }

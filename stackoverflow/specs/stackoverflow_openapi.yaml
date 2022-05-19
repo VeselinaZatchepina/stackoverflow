@@ -6,33 +6,9 @@ info:
 servers:
   - url: https://localhost/
 tags:
-  - name: user
-    description: Access to users
   - name: question
     description: Access to questions
-  - name: answer
-    description: Access to answers
 paths:
-  /user/create:
-    post:
-      tags:
-        - user
-      summary: Create new user
-      operationId: createUser
-      requestBody:
-        description: Create user object
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateUserRequest'
-        required: true
-      responses:
-        200:
-          description: all responses
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateUserResponse'
   /question/create:
     post:
       tags:
@@ -53,18 +29,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateQuestionResponse'
-  /answer/create:
+  /question/update:
     post:
       tags:
-        - answer
-      summary: Create new answer
-      operationId: createAnswer
+        - question
+      summary: Update question
+      operationId: updateQuestion
       requestBody:
-        description: Create answer object
+        description: Update question object
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateAnswerRequest'
+              $ref: '#/components/schemas/UpdateQuestionRequest'
         required: true
       responses:
         200:
@@ -72,19 +48,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateAnswerResponse'
-  /user/get:
+                $ref: '#/components/schemas/UpdateQuestionResponse'
+  /question/delete:
     post:
       tags:
-        - user
-      summary: Get user info
-      operationId: getUser
+        - question
+      summary: Delete question
+      operationId: deleteQuestion
       requestBody:
-        description: User info object
+        description: Delete question object
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GetUserRequest'
+              $ref: '#/components/schemas/DeleteQuestionRequest'
         required: true
       responses:
         200:
@@ -92,8 +68,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetUserResponse'
-  /question/get:
+                $ref: '#/components/schemas/DeleteQuestionResponse'
+  /question/read:
     post:
       tags:
         - question
@@ -113,26 +89,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetQuestionResponse'
-  /answers/get:
-    post:
-      tags:
-        - answer
-      summary: Get answers info
-      operationId: getAnswers
-      requestBody:
-        description: Answers info object
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GetAnswersRequest'
-        required: true
-      responses:
-        200:
-          description: all responses
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetAnswersResponse'
   /question/search:
     post:
       tags:
@@ -156,349 +112,258 @@ paths:
 components:
   schemas:
 
-    BaseMessage:
+    IRequest:
       type: object
-      description: Base class for requests and responses
+      description: Base interface
       properties:
-        messageType:
+        requestType:
           type: string
-          title: discriminator
-          description: Discriminator contains generic class
+          description: Discriminator
+          example: create
+        requestId:
+          type: string
+          description: Request id
       discriminator:
-        propertyName: messageType
+        propertyName: requestType
+        mapping:
+          create: '#/components/schemas/CreateQuestionRequest'
+          read: '#/components/schemas/GetQuestionRequest'
+          update: '#/components/schemas/UpdateQuestionRequest'
+          delete: '#/components/schemas/DeleteQuestionRequest'
+          search: '#/components/schemas/SearchQuestionRequest'
 
-    BaseRequest:
-      description: Base class for requests
-      allOf:
-        # - $ref: '#/components/schemas/BaseMessage'
-        - type: object
-          properties:
-            requestId:
-              type: string
-
-    BaseResponse:
-      description: Base class for responses
-      allOf:
-        # - $ref: '#/components/schemas/BaseMessage'
-        - type: object
-          properties:
-            requestId:
-              type: string
-            result:
-              type: string
-              enum:
-                - success
-                - error
-            errors:
-              type: array
-              items:
-                $ref: '#/components/schemas/RequestError'
-
-    RequestError:
+    Error:
       type: object
-      description: Request error description
       properties:
-        message:
+        code:
+          type: string
+        group:
           type: string
         field:
           type: string
+        message:
+          type: string
+
+    ResponseResult:
+      type: string
+      enum:
+        - success
+        - error
+
+    IResponse:
+      type: object
+      description: Базовый интерфейс для всех ответов
+      properties:
+        responseType:
+          type: string
+          description: Поле-дескриминатор для вычисления типа запроса
+          example: create
+        requestId:
+          type: string
+          description: Идентификатор запроса для отладки
+        result:
+          $ref: '#/components/schemas/ResponseResult'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+      discriminator:
+        propertyName: responseType
+        mapping:
+          create: '#/components/schemas/CreateQuestionResponse'
+          read: '#/components/schemas/GetQuestionResponse'
+          update: '#/components/schemas/UpdateQuestionResponse'
+          delete: '#/components/schemas/DeleteQuestionResponse'
+          search: '#/components/schemas/SearchQuestionResponse'
 
     QuestionStatus:
       type: string
       description: Question status
       enum:
-        - solve
-        - close
-        - open
+        - solved
+        - closed
+        - opened
 
-    Question:
+    CreatableQuestion:
       type: object
-      description: question object
+      description: createable question object
       properties:
-        id:
+        title:
           type: string
-          title: question id
+          description: question title
         text:
           type: string
-          title: question text
-        rating:
+          description: question text
+        ownerId:
           type: string
-          title: question rating
-        creationDate:
-          type: string
-          title: question creation date
-        status:
-          $ref: '#/components/schemas/QuestionStatus'
-          
-    Answer:
+          description: question owner id
+
+    UpdatableQuestion:
       type: object
-      description: answer object
-      properties:
-        id:
-          type: string
-          title: answer id
-        text:
-          type: string
-          title: answer text
-        rating:
-          type: string
-          title: answer rating
-        creationDate:
-          type: string
-          title: answer creation date
-          
-    User:
-      type: object
-      description: user object
-      properties:
-        id:
-          type: string
-          title: user id
-        name:
-          type: string
-          title: user name
-        email:
-          type: string
-          title: user email
-        rating:
-          type: string
-          title: user rating
+      description: updateable question object
+      allOf:
+        - $ref: '#/components/schemas/CreatableQuestion'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: question id
+            rating:
+              type: string
+              description: question rating
+            status:
+              $ref: '#/components/schemas/QuestionStatus'
+
+    ResponseQuestion:
+      description: question response
+      allOf:
+        - $ref: '#/components/schemas/UpdatableQuestion'
+        - type: object
+          properties:
+            text:
+              type: string
+              description: question text
+            ownerId:
+              type: string
+              description: question rating
+            creationDate:
+              type: string
+              description: question creation date
 
     BaseDebugRequest:
-      type: object
-      description: Структура с описанием отладочных параметров запроса
-      properties:
-        mode:
-          type: string
-          default: prod
-          enum:
-            - prod
-            - test
-            - stub
-        stubCase:
-          type: string
-          enum:
-            - success
-            - database_error
+      type: string
+      enum:
+        - prod
+        - test
+        - stub
 
     CreateQuestionRequest:
       description: new question
       allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseRequest'
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/QuestionRequestDebug'
         - type: object
           properties:
             createQuestion:
-              $ref: '#/components/schemas/Question'
-            debug:
-              allOf:
-                - $ref: '#/components/schemas/BaseDebugRequest'
-                - type: object
-                  properties:
-                    stub:
-                      type: string
-                      enum:
-                        - success
-                        - emptyTitle
-                        - databaseError
-                        
-    CreateUserRequest:
-      description: new user
-      allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseRequest'
-        - type: object
-          properties:
-            createUser:
-              $ref: '#/components/schemas/User'
-            debug:
-              allOf:
-                - $ref: '#/components/schemas/BaseDebugRequest'
-                - type: object
-                  properties:
-                    stub:
-                      type: string
-                      enum:
-                        - success
-                        - emptyTitle
-                        - databaseError
+              $ref: '#/components/schemas/CreatableQuestion'
 
     CreateQuestionResponse:
       description: new question response
       allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseResponse'
+        - $ref: '#/components/schemas/IResponse'
         - type: object
           properties:
             createdQuestion:
-              $ref: '#/components/schemas/Question'
-              
-    CreateUserResponse:
-      description: new user response
-      allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseResponse'
-        - type: object
-          properties:
-            createdUser:
-              $ref: '#/components/schemas/User'
-              
-    CreateAnswerRequest:
-      description: new answer
-      allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseRequest'
-        - type: object
-          properties:
-            createAnswer:
-              $ref: '#/components/schemas/Answer'
-            debug:
-              allOf:
-                - $ref: '#/components/schemas/BaseDebugRequest'
-                - type: object
-                  properties:
-                    stub:
-                      type: string
-                      enum:
-                        - success
-                        - emptyTitle
-                        - databaseError
-                        
-    CreateAnswerResponse:
-      description: new user response
-      allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseResponse'
-        - type: object
-          properties:
-            createdAnswer:
-              $ref: '#/components/schemas/Answer'
-              
-    GetAnswersRequest:
-      description: get answers request
-      allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseRequest'
-        - type: object
-          properties:
-            questionId:
-              type: string
-            debug:
-              allOf:
-                - $ref: '#/components/schemas/BaseDebugRequest'
-                - type: object
-                  properties:
-                    stub:
-                      type: string
-                      enum:
-                        - success
-                        - emptyTitle
-                        - databaseError
-                        
-    GetAnswersResponse:
-      description: get answers response
-      allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseResponse'
-        - type: object
-          properties:
-            answers:
-              type: array
-              items: 
-                $ref: '#/components/schemas/Answer'
-              
-    GetUserRequest:
-      description: get user
-      allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseRequest'
-        - type: object
-          properties:
-            userId:
-              type: string
-            debug:
-              allOf:
-                - $ref: '#/components/schemas/BaseDebugRequest'
-                - type: object
-                  properties:
-                    stub:
-                      type: string
-                      enum:
-                        - success
-                        - emptyTitle
-                        - databaseError
+              $ref: '#/components/schemas/ResponseQuestion'
 
-    GetUserResponse:
-      description: get user response
-      allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseResponse'
-        - type: object
-          properties:
-            user:
-              $ref: '#/components/schemas/User'
-              
-              
     GetQuestionRequest:
       description: get question
       allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseRequest'
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/QuestionRequestDebug'
         - type: object
           properties:
             questionId:
               type: string
-            debug:
-              allOf:
-                - $ref: '#/components/schemas/BaseDebugRequest'
-                - type: object
-                  properties:
-                    stub:
-                      type: string
-                      enum:
-                        - success
-                        - emptyTitle
-                        - databaseError
                         
     GetQuestionResponse:
       description: get question response
       allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseResponse'
+        - $ref: '#/components/schemas/IResponse'
         - type: object
           properties:
             question:
-              $ref: '#/components/schemas/Question'
+              $ref: '#/components/schemas/ResponseQuestion'
               
     SearchQuestionRequest:
       description: search question request
       allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseRequest'
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/QuestionRequestDebug'
         - type: object
           properties:
             inputText:
               type: string
-            debug:
-              allOf:
-                - $ref: '#/components/schemas/BaseDebugRequest'
-                - type: object
-                  properties:
-                    stub:
-                      type: string
-                      enum:
-                        - success
-                        - emptyTitle
-                        - databaseError
                         
     SearchQuestionResponse:
       description: search question response
       allOf:
-        - $ref: '#/components/schemas/BaseMessage'
-        - $ref: '#/components/schemas/BaseResponse'
+        - $ref: '#/components/schemas/IResponse'
         - type: object
           properties:
             questions:
               type: array
               items: 
-                $ref: '#/components/schemas/Question'
+                $ref: '#/components/schemas/ResponseQuestion'
+
+    UpdateQuestionRequest:
+      description: get question
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/QuestionRequestDebug'
+        - type: object
+          properties:
+            updateQuestion:
+              $ref: '#/components/schemas/UpdatableQuestion'
+
+    UpdateQuestionResponse:
+      description: update question response
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - type: object
+          properties:
+            question:
+              $ref: '#/components/schemas/ResponseQuestion'
+
+    DeleteQuestionRequest:
+      description: delete question
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/QuestionRequestDebug'
+        - type: object
+          properties:
+            questionId:
+              type: string
+
+    DeleteQuestionResponse:
+      description: get question response
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - type: object
+          properties:
+            question:
+              $ref: '#/components/schemas/ResponseQuestion'
+
+    # STUBS ======================
+    QuestionRequestDebug:
+      type: object
+      properties:
+        debug:
+          $ref: '#/components/schemas/QuestionDebug'
+
+    QuestionDebug:
+      type: object
+      properties:
+        mode:
+          $ref: '#/components/schemas/QuestionRequestDebugMode'
+        stub:
+          $ref: '#/components/schemas/QuestionRequestDebugStubs'
+
+    QuestionRequestDebugStubs:
+      type: string
+      description: Перечисления всех стабов
+      enum:
+        - success
+        - notFound
+        - badId
+        - badTitle
+        - badDescription
+        - cannotDelete
+        - badSearchString
+
+    QuestionRequestDebugMode:
+      type: string
+      enum:
+        - prod
+        - test
+        - stub
