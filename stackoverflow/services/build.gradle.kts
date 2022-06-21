@@ -7,6 +7,7 @@ version = rootProject.version
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -14,6 +15,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(project(":common"))
     implementation(project(":stubs"))
+    implementation(project(":question-app-biz"))
 
     api("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
 }

@@ -4,4 +4,5 @@ enum class SState {
     NONE,
     RUNNING,
     FAILING,
+    FINISHING,
 }

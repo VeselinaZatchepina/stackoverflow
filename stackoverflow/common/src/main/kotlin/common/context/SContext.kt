@@ -23,4 +23,9 @@ data class SContext(
 
     var questionResponse: QuestionModel = QuestionModel(),
     var questionsResponse: MutableList<QuestionModel> = mutableListOf(),
+
+    var questionValidated: QuestionModel = QuestionModel(),
+    var questionIdValidated: IdModel = IdModel.NONE,
+    var questionValidating: QuestionModel = QuestionModel(),
+    var questionIdValidating: IdModel = IdModel.NONE,
 )
