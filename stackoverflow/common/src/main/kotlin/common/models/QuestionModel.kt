@@ -5,7 +5,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 data class QuestionModel (
-    val id: IdModel = IdModel.NONE,
+    var id: IdModel = IdModel.NONE,
     val title: String = EMPTY_STRING,
     val text: String = EMPTY_STRING,
     val rating: String = EMPTY_STRING,

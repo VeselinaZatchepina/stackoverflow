@@ -15,3 +15,6 @@ pluginManagement {
 include("common")
 include("transport-main-openapi")
 include("transport-mapping-openapi")
+include("question-app-ktor")
+include("services")
+include("stubs")

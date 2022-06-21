@@ -21,6 +21,6 @@ data class SContext(
     var questionRequestId: IdModel = IdModel.NONE,
     var searchQuestionRequest: String = EMPTY_STRING,
 
-    val questionResponse: QuestionModel = QuestionModel(),
+    var questionResponse: QuestionModel = QuestionModel(),
     var questionsResponse: MutableList<QuestionModel> = mutableListOf(),
 )
