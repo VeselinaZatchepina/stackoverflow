@@ -52,7 +52,7 @@ fun SContext.fromTransport(request: DeleteQuestionRequest) = apply {
 }
 
 fun SContext.fromTransport(request: GetQuestionRequest) = apply {
-    command = SCommand.DELETE
+    command = SCommand.READ
     requestId = request.requestId()
     questionRequestId = request.questionId.toQuestionId()
     workMode = request.debug.transportToWorkMode()
@@ -60,7 +60,7 @@ fun SContext.fromTransport(request: GetQuestionRequest) = apply {
 }
 
 fun SContext.fromTransport(request: UpdateQuestionRequest) = apply {
-    command = SCommand.DELETE
+    command = SCommand.UPDATE
     requestId = request.requestId()
     questionRequest = request.updateQuestion?.toModel() ?: QuestionModel()
     workMode = request.debug.transportToWorkMode()
@@ -68,7 +68,7 @@ fun SContext.fromTransport(request: UpdateQuestionRequest) = apply {
 }
 
 fun SContext.fromTransport(request: SearchQuestionRequest) = apply {
-    command = SCommand.DELETE
+    command = SCommand.SEARCH
     requestId = request.requestId()
     searchQuestionRequest = request.inputText ?: EMPTY_STRING
     workMode = request.debug.transportToWorkMode()
@@ -86,7 +86,7 @@ private fun UpdatableQuestion.toModel() = QuestionModel(
     text = text ?: EMPTY_STRING,
     rating = rating ?: EMPTY_STRING,
     ownerId = ownerId ?: EMPTY_STRING,
-    status = status?.toModel() ?: QuestionStatusModel.NONE
+    status = status?.toModel() ?: QuestionStatusModel.OPENED
 )
 
 private fun QuestionStatus.toModel() = enumValueOf<QuestionStatusModel>(name)

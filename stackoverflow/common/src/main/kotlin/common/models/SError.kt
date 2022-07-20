@@ -8,4 +8,5 @@ data class SError(
     val field: String = EMPTY_STRING,
     val message: String = EMPTY_STRING,
     val exception: Throwable? = null,
+    val level: SErrorLevels = SErrorLevels.ERROR,
 )

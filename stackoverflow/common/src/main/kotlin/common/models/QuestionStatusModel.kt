@@ -4,5 +4,4 @@ enum class QuestionStatusModel {
     SOLVED,
     CLOSED,
     OPENED,
-    NONE
 }

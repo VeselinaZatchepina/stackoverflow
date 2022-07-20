@@ -2,58 +2,58 @@ package v1
 
 import QuestionService
 import common.context.SContext
+import common.helpers.asSError
+import common.models.SCommand
+import common.models.SState
 import fromTransport
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import kotlinx.datetime.Clock
 import org.stackoverflow.openapi.models.*
 import toTransportCreate
 import toTransportDelete
+import toTransportQuestion
 import toTransportRead
 import toTransportSearch
 import toTransportUpdate
 
 suspend fun ApplicationCall.createQuestion(service: QuestionService) {
-    val createQuestionRequest = receive<CreateQuestionRequest>()
-    respond(
-        SContext().apply { fromTransport(createQuestionRequest) }.let {
-            service.createQuestion(it)
-        }.toTransportCreate()
+    val ctx = SContext(
+        timeStart = Clock.System.now(),
     )
+    try {
+        val request = receive<CreateQuestionRequest>()
+        ctx.fromTransport(request)
+        service.createAd(ctx)
+        val response = ctx.toTransportQuestion()
+        respond(response)
+    } catch (e: Throwable) {
+        ctx.command = SCommand.CREATE
+        ctx.state = SState.FAILING
+        ctx.errors.add(e.asSError())
+        service.createAd(ctx)
+        val response = ctx.toTransportQuestion()
+        respond(response)
+    }
 }
 
-suspend fun ApplicationCall.readQuestion(service: QuestionService) {
-    val readAdRequest = receive<GetQuestionRequest>()
-    respond(
-        SContext().apply { fromTransport(readAdRequest) }.let {
-            service.readQuestion(it, ::buildError)
-        }.toTransportRead()
-    )
-}
+suspend fun ApplicationCall.readQuestion(service: QuestionService) =
+    controllerHelperV1<GetQuestionRequest, GetQuestionResponse>(SCommand.READ) {
+        service.readAd(this)
+    }
 
-suspend fun ApplicationCall.updateQuestion(service: QuestionService) {
-    val updateAdRequest = receive<UpdateQuestionRequest>()
-    respond(
-        SContext().apply { fromTransport(updateAdRequest) }.let {
-            service.updateQuestion(it, ::buildError)
-        }.toTransportUpdate()
-    )
-}
+suspend fun ApplicationCall.updateQuestion(service: QuestionService) =
+    controllerHelperV1<UpdateQuestionRequest, UpdateQuestionResponse>(SCommand.UPDATE) {
+        service.updateAd(this)
+    }
 
-suspend fun ApplicationCall.deleteQuestion(service: QuestionService) {
-    val deleteAdRequest = receive<DeleteQuestionRequest>()
-    respond(
-        SContext().apply { fromTransport(deleteAdRequest) }.let {
-            service.deleteQuestion(it, ::buildError)
-        }.toTransportDelete()
-    )
-}
+suspend fun ApplicationCall.deleteQuestion(service: QuestionService) =
+    controllerHelperV1<DeleteQuestionRequest, DeleteQuestionResponse>(SCommand.DELETE) {
+        service.deleteAd(this)
+    }
 
-suspend fun ApplicationCall.searchQuestion(service: QuestionService) {
-    val searchAdRequest = receive<SearchQuestionRequest>()
-    respond(
-        SContext().apply { fromTransport(searchAdRequest) }.let {
-            service.searchQuestion(it, ::buildError)
-        }.toTransportSearch()
-    )
-}
+suspend fun ApplicationCall.searchQuestion(service: QuestionService) =
+    controllerHelperV1<SearchQuestionRequest, SearchQuestionResponse>(SCommand.SEARCH) {
+        service.searchAd(this)
+    }

@@ -26,11 +26,14 @@ application {
 
 dependencies {
     val datetimeVersion: String by project
+    val kotlinCorVersion: String by project
+    val coroutinesVersion: String by project
     implementation(kotlin("stdlib"))
-    implementation(project(":services"))
     implementation(project(":common"))
+    implementation(project(":stubs"))
     implementation(project(":transport-mapping-openapi"))
     implementation(project(":transport-main-openapi"))
+    implementation("com.github.crowdproj.kotlin-cor:kotlin-cor:$kotlinCorVersion")
 
     api("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
 
@@ -59,4 +62,6 @@ dependencies {
 
     testImplementation(kotlin("test-junit"))
     testImplementation(ktor("test-host"))
+
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
 }
