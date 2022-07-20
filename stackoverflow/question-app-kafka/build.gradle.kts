@@ -26,16 +26,24 @@ application {
 
 dependencies {
     val datetimeVersion: String by project
+    val kotlinCorVersion: String by project
+    val coroutinesVersion: String by project
+    val logbackVersion: String by project
+    val kotlinLoggingJvmVersion: String by project
+    val kafkaVersion: String by project
+    val atomicfuVersion: String by project
+
     implementation(kotlin("stdlib"))
-    implementation(project(":services"))
     implementation(project(":common"))
+    implementation(project(":stubs"))
     implementation(project(":transport-mapping-openapi"))
     implementation(project(":transport-main-openapi"))
-    implementation(project(":question-app-kafka"))
+    implementation(project(":services"))
+    implementation(project(":question-app-jackson"))
+    implementation("com.github.crowdproj.kotlin-cor:kotlin-cor:$kotlinCorVersion")
 
     api("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
 
-    val logbackVersion: String by project
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation(ktor("core")) // "io.ktor:ktor-server-core:$ktorVersion"
     implementation(ktor("netty")) // "io.ktor:ktor-ktor-server-netty:$ktorVersion"
@@ -56,8 +64,16 @@ dependencies {
 
     implementation(ktor("websockets"))
 
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-
     testImplementation(kotlin("test-junit"))
     testImplementation(ktor("test-host"))
+
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+
+    // log
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
+
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+    implementation("org.jetbrains.kotlinx:atomicfu:$atomicfuVersion")
 }

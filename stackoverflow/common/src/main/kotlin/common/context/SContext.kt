@@ -7,6 +7,7 @@ import common.stub.SStubs
 import kotlinx.datetime.Instant
 
 data class SContext(
+    var settings: SSettings = SSettings(),
     var command: SCommand = SCommand.NONE,
     var state: SState = SState.NONE,
     val errors: MutableList<SError> = mutableListOf(),

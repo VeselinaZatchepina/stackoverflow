@@ -1,11 +1,14 @@
 import common.context.SContext
 import common.models.SError
+import common.models.SSettings
 import common.models.WorkMode
 import common.stub.SStubs
 
-class QuestionService {
+class QuestionService(
+    val settings: SSettings = SSettings()
+) {
 
-    private val processor = QuestionProcessor()
+    private val processor = QuestionProcessor(settings)
 
     suspend fun exec(context: SContext) = processor.exec(context)
 
