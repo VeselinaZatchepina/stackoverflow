@@ -37,7 +37,6 @@ dependencies {
 
     api("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
 
-    val logbackVersion: String by project
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation(ktor("core")) // "io.ktor:ktor-server-core:$ktorVersion"
     implementation(ktor("netty")) // "io.ktor:ktor-ktor-server-netty:$ktorVersion"
@@ -57,8 +56,6 @@ dependencies {
     implementation(ktor("websockets"))
 
     implementation(ktor("websockets"))
-
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
     testImplementation(kotlin("test-junit"))
     testImplementation(ktor("test-host"))

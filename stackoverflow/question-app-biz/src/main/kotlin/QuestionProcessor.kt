@@ -4,14 +4,17 @@ import com.crowdproj.kotlin.cor.rootChain
 import common.context.SContext
 import common.models.IdModel
 import common.models.SCommand
+import common.models.SSettings
 import general.initStatus
 import general.operation
 import stubs.*
 import validation.*
 
-class QuestionProcessor {
+class QuestionProcessor(
+    private val settings: SSettings = SSettings()
+) {
 
-    suspend fun exec(ctx: SContext) = BuzinessChain.exec(ctx)
+    suspend fun exec(ctx: SContext) = BuzinessChain.exec(ctx.apply { settings = this@QuestionProcessor.settings })
 
     companion object {
         private val BuzinessChain = rootChain<SContext> {
